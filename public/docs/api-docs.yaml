@@ -1,0 +1,294 @@
+---
+components:
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  description: Documentation de l'API Gestion Boutique
+  title: API de gestion
+  version: 1.0.0
+openapi: 3.0.0
+paths:
+  /articles:
+    get:
+      description: Retrieve a paginated list of articles, optionally filtered by stock availability.
+      parameters:
+        - description: Filter articles by stock availability ('oui' for in stock, 'non' for out of stock).
+          in: query
+          name: disponible
+          schema:
+            enum:
+              - oui
+              - non
+            type: string
+        - description: Retrieve all articles regardless of user ID.
+          in: query
+          name: all
+          schema:
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      data:
+                        items:
+                          $ref: '#/components/schemas/Article'
+                        type: array
+                      meta:
+                        properties:
+                          current_page:
+                            type: integer
+                          from:
+                            type: integer
+                          last_page:
+                            type: integer
+                          per_page:
+                            type: integer
+                          to:
+                            type: integer
+                          total:
+                            type: integer
+                        type: object
+                    type: object
+                  message:
+                    example: Articles retrieved successfully
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Successful response with the list of articles.
+      summary: Retrieve a list of articles
+    post:
+      description: Create a new article with the provided details.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleCreateRequest'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Article'
+                  message:
+                    example: Article créé avec succès.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Article créé avec succès.
+      summary: Create a new article
+  /articles/approve:
+    post:
+      description: Approve and update stock for multiple articles.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleApproveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    properties:
+                      error_percentage:
+                        format: float
+                        type: number
+                      errors:
+                        items:
+                          properties:
+                            article:
+                              type: object
+                            error:
+                              type: string
+                          type: object
+                        type: array
+                      updated:
+                        items:
+                          $ref: '#/components/schemas/Article'
+                        type: array
+                    type: object
+                  message:
+                    example: Approbation terminée avec quelques erreurs.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Approbation terminée avec quelques erreurs.
+      summary: Approve multiple articles
+  /articles/approve/{id}:
+    patch:
+      description: Approve and update stock for a specific article by its ID.
+      parameters:
+        - description: The ID of the article to approve.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleApproveByIdRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Article'
+                  message:
+                    example: Article approuvé avec succès.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Article approuvé avec succès.
+        '404':
+          description: Article not found.
+      summary: Approve an article by ID
+  /articles/libelle:
+    post:
+      description: Retrieve articles filtered by label or category.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleByLibelleRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/Article'
+                    type: array
+                  message:
+                    example: Articles trouvés.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Articles trouvés.
+        '400':
+          description: Bad request if neither label nor category is provided.
+      summary: Get articles by label or category
+  /articles/{id}:
+    delete:
+      description: Delete a specific article by its ID.
+      parameters:
+        - description: The ID of the article to delete.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    example: Article supprimé avec succès.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Article supprimé avec succès.
+        '404':
+          description: Article not found.
+      summary: Delete a specific article
+    get:
+      description: Retrieve the details of a specific article by its ID.
+      parameters:
+        - description: The ID of the article to retrieve.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Article'
+                  message:
+                    example: Article récupéré avec succès.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Article récupéré avec succès.
+        '404':
+          description: Article not found.
+      summary: Retrieve a specific article
+    put:
+      description: Update the details of a specific article by its ID.
+      parameters:
+        - description: The ID of the article to update.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Article'
+                  message:
+                    example: Article mis à jour avec succès.
+                    type: string
+                  success:
+                    example: success
+                    type: string
+                type: object
+          description: Article mis à jour avec succès.
+        '404':
+          description: Article not found.
+      summary: Update a specific article
+security:
+  - bearerAuth: []
+servers:
+  - description: Serveur local
+    url: http://localhost:8000/api/v1

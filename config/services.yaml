@@ -1,0 +1,36 @@
+services:
+  bindings:
+    - interface: App\Services\FileUploadInterface
+      default: App\Services\FileUploadService
+      alternative: App\Services\CloudinaryFileUploadService
+      key: fileupload
+
+    - interface: App\Services\MailerServiceInterface
+      default: App\Services\MailerService
+      key: mail
+
+    - interface: App\Services\PdfServiceInterface
+      default: App\Services\PdfService2
+      key: pdf
+
+    - interface: App\Services\QrServiceInterface
+      default: App\Services\QrService
+      key: qrcode
+
+    - interface: App\Exceptions\RepositoryExceptionInterface
+      default: App\Exceptions\RepositoryException
+      key: rep_except
+
+    - interface: App\Exceptions\ServiceExceptionInterface
+      default: App\Exceptions\ServiceException
+      key: ser_except
+
+    - interface: App\Services\ArchiveServiceInterface
+      default: App\Services\MongoDBArchiveService
+      alternative: App\Services\FirebaseArchiveService
+      key: archiveService
+      use: default
+
+    - interface: App\Services\SmsServiceInterface
+      default: App\Services\SmsService2
+      key: sms-service
